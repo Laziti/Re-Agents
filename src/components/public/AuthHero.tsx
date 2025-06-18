@@ -156,45 +156,50 @@ const AuthHero: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-[var(--portal-bg)] text-[var(--portal-text)] flex flex-col items-center justify-center p-4 transition-all duration-500">
-      <div className="w-full max-w-md">
-        <div className="text-center mb-8">
-          <h1 className="text-5xl font-bold gradient-text">Agent Portal Access</h1>
-          <p className="text-[var(--portal-text-secondary)]">Your Gateway to Our Services</p>
+      <div className="flex flex-col md:flex-row items-center justify-center w-full max-w-6xl mx-auto p-4 md:p-8">
+        {/* Left Column */}
+        <div className="md:w-1/2 p-4 md:p-8 flex flex-col justify-center items-center md:items-start text-center md:text-left">
+          <img src="/Logo.svg" alt="Company Logo" className="w-32 h-auto mb-6 md:mb-8" />
+          <h2 className="text-3xl md:text-4xl font-bold text-[var(--portal-text)] mb-3 md:mb-4">About Real Estate Agents</h2>
+          <p className="text-lg md:text-xl text-[var(--portal-text-secondary)]">Access exclusive tools and resources designed for top real estate professionals.</p>
         </div>
 
-        <div className="flex mb-4 border-b border-[var(--portal-border)]">
-          <button
-            className={`flex-1 py-3 px-4 text-center font-semibold transition-colors duration-300 ${
-              activeTab === 'signIn'
-                ? 'text-[var(--portal-accent)] border-b-2 border-[var(--portal-accent)]'
-                : 'text-[var(--portal-text-secondary)] hover:text-[var(--portal-accent)] focus:outline-none'
-            }`}
-            onClick={() => { setActiveTab('signIn'); setErrorMessage(null); }}
-          >
-            Sign In
-          </button>
-          <button
-            className={`flex-1 py-3 px-4 text-center font-semibold transition-colors duration-300 ${
-              activeTab === 'signUp'
-                ? 'text-[var(--portal-accent)] border-b-2 border-[var(--portal-accent)]'
-                : 'text-[var(--portal-text-secondary)] hover:text-[var(--portal-accent)] focus:outline-none'
-            }`}
-            onClick={() => { setActiveTab('signUp'); setErrorMessage(null); }}
-          >
-            Sign Up
-          </button>
-        </div>
+        {/* Right Column (Form Card) */}
+        <div className="md:w-1/2 p-4 w-full flex justify-center md:justify-start">
+          <div className="w-full max-w-md"> {/* This div now controls the form card's width and max-width */}
+            <div className="flex mb-4 border-b border-[var(--portal-border)]">
+              <button
+                className={`flex-1 py-3 px-4 text-center font-semibold transition-colors duration-300 ${
+                  activeTab === 'signIn'
+                    ? 'text-[var(--portal-accent)] border-b-2 border-[var(--portal-accent)]'
+                    : 'text-[var(--portal-text-secondary)] hover:text-[var(--portal-accent)] focus:outline-none'
+                }`}
+                onClick={() => { setActiveTab('signIn'); setErrorMessage(null); }}
+              >
+                Sign In
+              </button>
+              <button
+                className={`flex-1 py-3 px-4 text-center font-semibold transition-colors duration-300 ${
+                  activeTab === 'signUp'
+                    ? 'text-[var(--portal-accent)] border-b-2 border-[var(--portal-accent)]'
+                    : 'text-[var(--portal-text-secondary)] hover:text-[var(--portal-accent)] focus:outline-none'
+                }`}
+                onClick={() => { setActiveTab('signUp'); setErrorMessage(null); }}
+              >
+                Sign Up
+              </button>
+            </div>
 
-        {errorMessage && (
-          <div className="mb-4 p-3 bg-red-700/30 border border-red-600 text-red-400 rounded-md text-center">
-            {errorMessage}
-          </div>
-        )}
+            {errorMessage && (
+              <div className="mb-4 p-3 bg-red-700/30 border border-red-600 text-red-400 rounded-md text-center">
+                {errorMessage}
+              </div>
+            )}
 
-        <div className="bg-[var(--portal-card-bg)] p-6 sm:p-8 rounded-2xl shadow-xl border border-[var(--portal-border)] relative overflow-hidden min-h-[560px] animate-pulse"> {/* Used animate-pulse as placeholder */}
-          {/* Sign In Form */}
-          <div
-            className={`transition-opacity duration-500 ease-in-out ${
+            <div className="bg-[var(--portal-card-bg)] p-6 sm:p-8 rounded-2xl shadow-xl border border-[var(--portal-border)] relative overflow-hidden min-h-[560px]">
+              {/* Sign In Form */}
+              <div
+                className={`transition-opacity duration-500 ease-in-out ${
               activeTab === 'signIn' ? 'opacity-100' : 'opacity-0 absolute invisible pointer-events-none'
             }`}
           >
