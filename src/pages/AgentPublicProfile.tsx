@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Helmet } from 'react-helmet';
-import { Loader2, Phone, Mail, MapPin, Home, Star, Filter, Search } from 'lucide-react';
+import { Loader2, Phone, Mail, MapPin, Home, Star, Filter, Search, MessageCircle, Send } from 'lucide-react';
 import { createSlug } from '@/lib/formatters';
 
 interface AgentProfile {
@@ -237,10 +237,10 @@ const AgentPublicProfile = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-white flex items-center justify-center">
+      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
         <div className="flex flex-col items-center gap-4">
           <Loader2 className="h-10 w-10 animate-spin text-red-600" />
-          <p className="text-gray-600 animate-pulse">Loading properties...</p>
+          <p className="text-gray-600 animate-pulse">Loading profile...</p>
         </div>
       </div>
     );
@@ -254,8 +254,18 @@ const AgentPublicProfile = () => {
   // Get featured listing (most expensive or first one)
   const featuredListing = listings.length > 0 ? listings.reduce((prev, current) => (prev.price > current.price) ? prev : current) : null;
 
+  // Get unique property types from listings
+  const propertyTypes = Array.from(new Set(listings.map(listing => {
+    const title = listing.title.toLowerCase();
+    if (title.includes('apartment') || title.includes('condo')) return 'Apartments';
+    if (title.includes('house') || title.includes('villa')) return 'Houses';
+    if (title.includes('commercial') || title.includes('office')) return 'Commercial';
+    if (title.includes('land') || title.includes('plot')) return 'Land';
+    return 'Properties';
+  })));
+
   return (
-    <div className="min-h-screen bg-white">
+    <div className="min-h-screen bg-gray-50">
       <Helmet>
         <title>{pageTitle}</title>
         <meta name="description" content={pageDescription} />
@@ -265,45 +275,35 @@ const AgentPublicProfile = () => {
         <meta name="twitter:description" content={pageDescription} />
       </Helmet>
       
-      {/* Hero Section with Featured Property */}
-      <div className="relative">
-        <div className="h-[70vh] relative overflow-hidden">
+      <div className="max-w-7xl mx-auto p-6 space-y-6">
+        {/* Cover Section */}
+        <div className="bg-white rounded-lg shadow-sm border h-48 relative overflow-hidden">
           {featuredListing?.main_image_url ? (
             <img 
               src={featuredListing.main_image_url}
-              alt={featuredListing.title} 
+              alt="Cover" 
               className="w-full h-full object-cover"
             />
           ) : (
-            <div className="w-full h-full bg-gradient-to-br from-gray-800 via-gray-700 to-gray-900 flex items-center justify-center">
-              <Home className="h-32 w-32 text-white/20" />
+            <div className="w-full h-full bg-gradient-to-br from-red-100 to-red-200 flex items-center justify-center">
+              <Home className="h-16 w-16 text-red-400" />
             </div>
           )}
-          
-          {/* Gradient overlay */}
-          <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-black/30 to-transparent"></div>
-          
-          {/* Hero Content */}
-          <div className="absolute inset-0 flex items-center justify-center">
-            <div className="text-center text-white max-w-4xl px-6">
-              <div className="inline-block bg-red-600 text-white px-8 py-3 rounded-sm font-bold text-lg mb-6 transform -rotate-1 shadow-lg">
-                YOUR DREAM HOME
-              </div>
-              <h1 className="text-5xl md:text-7xl font-bold mb-4 drop-shadow-lg">
-                {featuredListing ? featuredListing.title : 'Premium Properties'}
-              </h1>
-              {featuredListing && (
-                <div className="text-3xl md:text-4xl font-bold text-yellow-400 mb-6">
-                  {formatPrice(featuredListing.price)}
-                </div>
-              )}
-              <p className="text-xl md:text-2xl opacity-90 mb-8">
-                Discover exceptional real estate opportunities
-              </p>
-              
-              {/* Agent Info Banner */}
-              <div className="inline-flex items-center gap-4 bg-white/10 backdrop-blur-sm rounded-lg px-6 py-4 border border-white/20">
-                <div className="w-16 h-16 rounded-full overflow-hidden border-2 border-white">
+          <div className="absolute inset-0 bg-black bg-opacity-30 flex items-center justify-center">
+            <div className="text-center text-white">
+              <h1 className="text-3xl font-bold mb-2">Welcome to My Profile</h1>
+              <p className="text-lg">Discover Premium Real Estate Opportunities</p>
+            </div>
+          </div>
+        </div>
+
+        {/* Main Content Grid */}
+        <div className="grid grid-cols-12 gap-6">
+          {/* Profile Section - Left Side */}
+          <div className="col-span-12 lg:col-span-3">
+            <div className="bg-white rounded-lg shadow-sm border p-6 h-fit">
+              <div className="text-center">
+                <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-gray-100 mx-auto mb-4">
                   {agent.avatar_url ? (
                     <img
                       src={agent.avatar_url}
@@ -311,270 +311,349 @@ const AgentPublicProfile = () => {
                       className="w-full h-full object-cover"
                     />
                   ) : (
-                    <div className="w-full h-full bg-gray-600 flex items-center justify-center text-white font-bold text-lg">
+                    <div className="w-full h-full bg-red-100 flex items-center justify-center text-red-600 font-bold text-xl">
                       {agent.first_name?.[0]}{agent.last_name?.[0]}
                     </div>
                   )}
                 </div>
-                <div className="text-left">
-                  <div className="text-xl font-bold">{agent.first_name} {agent.last_name}</div>
-                  {agent.career && <div className="text-white/80">{agent.career}</div>}
+                <h2 className="text-xl font-bold text-gray-800 mb-1">
+                  {agent.first_name} {agent.last_name}
+                </h2>
+                {agent.career && (
+                  <p className="text-gray-600 mb-4">{agent.career}</p>
+                )}
+                
+                {/* Contact Actions */}
+                <div className="space-y-2">
+                  {agent.phone_number && (
+                    <a
+                      href={`tel:${agent.phone_number}`}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    >
+                      <Phone className="h-4 w-4" />
+                      Call Now
+                    </a>
+                  )}
+                  {agent.whatsapp_link && (
+                    <a
+                      href={agent.whatsapp_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors text-sm"
+                    >
+                      <MessageCircle className="h-4 w-4" />
+                      WhatsApp
+                    </a>
+                  )}
+                  {agent.telegram_link && (
+                    <a
+                      href={agent.telegram_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors text-sm"
+                    >
+                      <Send className="h-4 w-4" />
+                      Telegram
+                    </a>
+                  )}
+                </div>
+
+                {/* Stats */}
+                <div className="mt-6 pt-6 border-t border-gray-100">
+                  <div className="grid grid-cols-2 gap-4 text-center">
+                    <div>
+                      <div className="text-2xl font-bold text-red-600">{listings.length}</div>
+                      <div className="text-xs text-gray-600">Properties</div>
+                    </div>
+                    <div>
+                      <div className="text-2xl font-bold text-red-600">{availableCities.length}</div>
+                      <div className="text-xs text-gray-600">Locations</div>
+                    </div>
+                  </div>
                 </div>
               </div>
             </div>
           </div>
-        </div>
-      </div>
 
-      {/* Search and Filter Section */}
-      <div className="bg-gray-50 py-8 border-b">
-        <div className="container mx-auto px-6">
-          <div className="flex flex-col md:flex-row gap-4 items-center justify-between">
-            <div className="flex items-center gap-4">
-              <button
-                onClick={() => setShowFilters(!showFilters)}
-                className="flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
-              >
-                <Filter className="h-4 w-4" />
-                Filters
-              </button>
-              <div className="text-gray-600">
-                {filteredListings.length} properties available
-              </div>
-            </div>
-            
-            {/* Contact Buttons */}
-            <div className="flex gap-3">
-              {agent.phone_number && (
-                <a
-                  href={`tel:${agent.phone_number}`}
-                  className="flex items-center gap-2 px-4 py-2 bg-gray-800 text-white rounded-lg hover:bg-gray-900 transition-colors"
-                >
-                  <Phone className="h-4 w-4" />
-                  Call Now
-                </a>
-              )}
-              {agent.whatsapp_link && (
-                <a
-                  href={agent.whatsapp_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2 px-4 py-2 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
-                >
-                  WhatsApp
-                </a>
-              )}
-            </div>
-          </div>
-          
-          {/* Filter Options */}
-          {showFilters && (
-            <div className="mt-6 p-6 bg-white rounded-lg shadow-sm border">
-              <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
-                {/* Cities */}
-                {availableCities.length > 0 && (
+          {/* Right Content Area */}
+          <div className="col-span-12 lg:col-span-9 space-y-6">
+            {/* Profile Bar and Categories Row */}
+            <div className="grid grid-cols-12 gap-6">
+              {/* Profile Bar */}
+              <div className="col-span-12 md:col-span-4">
+                <div className="bg-white rounded-lg shadow-sm border p-4 text-center h-24 flex items-center justify-center">
                   <div>
-                    <h3 className="font-semibold text-gray-800 mb-3">Location</h3>
-                    <div className="space-y-2">
-                      {availableCities.map(city => (
-                        <label key={city} className="flex items-center cursor-pointer">
-                          <input
-                            type="checkbox"
-                            checked={searchFilters.city === city}
-                            onChange={() => toggleFilter('city', city)}
-                            className="mr-2"
-                          />
-                          <span className="text-gray-700">{city}</span>
-                        </label>
-                      ))}
-                    </div>
+                    <h3 className="font-semibold text-gray-800">profile</h3>
+                    <p className="text-sm text-gray-600">Real Estate Expert</p>
                   </div>
-                )}
-                
-                {/* Price Ranges */}
-                <div>
-                  <h3 className="font-semibold text-gray-800 mb-3">Price Range</h3>
-                  <div className="space-y-2">
-                    {priceRanges.map(range => (
-                      <label key={range.id} className="flex items-center cursor-pointer">
-                        <input
-                          type="checkbox"
-                          checked={searchFilters.minPrice === range.min && searchFilters.maxPrice === range.max}
-                          onChange={() => toggleFilter('priceRange', { min: range.min, max: range.max })}
-                          className="mr-2"
-                        />
-                        <span className="text-gray-700">{range.label}</span>
-                      </label>
+                </div>
+              </div>
+
+              {/* Categories */}
+              <div className="col-span-12 md:col-span-8">
+                <div className="bg-white rounded-lg shadow-sm border p-4 h-24">
+                  <h3 className="font-semibold text-gray-800 mb-2">Categories</h3>
+                  <div className="flex flex-wrap gap-2">
+                    {propertyTypes.slice(0, 4).map((type, index) => (
+                      <span
+                        key={index}
+                        className="px-3 py-1 bg-red-100 text-red-800 rounded-full text-xs font-medium"
+                      >
+                        {type}
+                      </span>
                     ))}
                   </div>
                 </div>
-                
-                {/* Progress Status */}
-                {listings.length > 0 && (() => {
-                  const progressStatuses = Array.from(new Set(listings.map(l => l.progress_status).filter(Boolean)));
-                  return progressStatuses.length > 0 ? (
+              </div>
+            </div>
+
+            {/* Content Cards Row */}
+            <div className="grid grid-cols-12 gap-6">
+              {/* Featured Property */}
+              <div className="col-span-12 md:col-span-4">
+                <div className="bg-white rounded-lg shadow-sm border h-40 overflow-hidden">
+                  {featuredListing ? (
+                    <div 
+                      className="h-full relative cursor-pointer"
+                      onClick={() => navigate(`/${agent.slug}/listing/${createSlug(featuredListing.title)}`)}
+                    >
+                      {featuredListing.main_image_url ? (
+                        <img
+                          src={featuredListing.main_image_url}
+                          alt={featuredListing.title}
+                          className="w-full h-full object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                          <Home className="h-8 w-8 text-gray-400" />
+                        </div>
+                      )}
+                      <div className="absolute inset-0 bg-black bg-opacity-40 flex items-end">
+                        <div className="p-4 text-white">
+                          <p className="text-sm font-medium">Featured</p>
+                          <p className="text-xs truncate">{featuredListing.title}</p>
+                        </div>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="h-full bg-gray-100 flex items-center justify-center">
+                      <div className="text-center text-gray-500">
+                        <Home className="h-8 w-8 mx-auto mb-2" />
+                        <p className="text-sm">No featured property</p>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Quick Stats */}
+              <div className="col-span-12 md:col-span-4">
+                <div className="bg-white rounded-lg shadow-sm border p-4 h-40">
+                  <h3 className="font-semibold text-gray-800 mb-3">Quick Stats</h3>
+                  <div className="space-y-2">
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Total Properties</span>
+                      <span className="text-sm font-medium">{listings.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Active Listings</span>
+                      <span className="text-sm font-medium">{filteredListings.length}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-sm text-gray-600">Locations</span>
+                      <span className="text-sm font-medium">{availableCities.length}</span>
+                    </div>
+                    {listings.length > 0 && (
+                      <div className="flex justify-between">
+                        <span className="text-sm text-gray-600">Avg. Price</span>
+                        <span className="text-sm font-medium">
+                          {formatPrice(listings.reduce((sum, listing) => sum + listing.price, 0) / listings.length)}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+                </div>
+              </div>
+
+              {/* Filter & Search */}
+              <div className="col-span-12 md:col-span-4">
+                <div className="bg-white rounded-lg shadow-sm border p-4 h-40">
+                  <h3 className="font-semibold text-gray-800 mb-3">Search Properties</h3>
+                  <div className="space-y-3">
+                    <button
+                      onClick={() => setShowFilters(!showFilters)}
+                      className="w-full flex items-center justify-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors text-sm"
+                    >
+                      <Filter className="h-4 w-4" />
+                      Filters
+                    </button>
+                    <div className="text-center">
+                      <span className="text-sm text-gray-600">
+                        {filteredListings.length} properties available
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Filter Options */}
+            {showFilters && (
+              <div className="bg-white rounded-lg shadow-sm border p-6">
+                <h3 className="font-semibold text-gray-800 mb-4">Filter Properties</h3>
+                <div className="grid grid-cols-1 md:grid-cols-4 gap-6">
+                  {/* Cities */}
+                  {availableCities.length > 0 && (
                     <div>
-                      <h3 className="font-semibold text-gray-800 mb-3">Construction Status</h3>
+                      <h4 className="font-medium text-gray-800 mb-3">Location</h4>
                       <div className="space-y-2">
-                        {progressStatuses.map(status => (
-                          <label key={status as string} className="flex items-center cursor-pointer">
+                        {availableCities.map(city => (
+                          <label key={city} className="flex items-center cursor-pointer">
                             <input
                               type="checkbox"
-                              checked={searchFilters.progressStatus === status}
-                              onChange={() => toggleFilter('progressStatus', status)}
-                              className="mr-2"
+                              checked={searchFilters.city === city}
+                              onChange={() => toggleFilter('city', city)}
+                              className="mr-2 text-red-600"
                             />
-                            <span className="text-gray-700">{progressStatusLabels[status as string] || status}</span>
+                            <span className="text-sm text-gray-700">{city}</span>
                           </label>
                         ))}
                       </div>
                     </div>
-                  ) : null;
-                })()}
-                
-                {/* Bank Option */}
-                <div>
-                  <h3 className="font-semibold text-gray-800 mb-3">Financing</h3>
-                  <div className="space-y-2">
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={searchFilters.bankOption === true}
-                        onChange={() => toggleFilter('bankOption', true)}
-                        className="mr-2"
-                      />
-                      <span className="text-gray-700">Bank Financing Available</span>
-                    </label>
+                  )}
+                  
+                  {/* Price Ranges */}
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-3">Price Range</h4>
+                    <div className="space-y-2">
+                      {priceRanges.map(range => (
+                        <label key={range.id} className="flex items-center cursor-pointer">
+                          <input
+                            type="checkbox"
+                            checked={searchFilters.minPrice === range.min && searchFilters.maxPrice === range.max}
+                            onChange={() => toggleFilter('priceRange', { min: range.min, max: range.max })}
+                            className="mr-2 text-red-600"
+                          />
+                          <span className="text-sm text-gray-700">{range.label}</span>
+                        </label>
+                      ))}
+                    </div>
+                  </div>
+                  
+                  {/* Progress Status */}
+                  {listings.length > 0 && (() => {
+                    const progressStatuses = Array.from(new Set(listings.map(l => l.progress_status).filter(Boolean)));
+                    return progressStatuses.length > 0 ? (
+                      <div>
+                        <h4 className="font-medium text-gray-800 mb-3">Construction Status</h4>
+                        <div className="space-y-2">
+                          {progressStatuses.map(status => (
+                            <label key={status as string} className="flex items-center cursor-pointer">
+                              <input
+                                type="checkbox"
+                                checked={searchFilters.progressStatus === status}
+                                onChange={() => toggleFilter('progressStatus', status)}
+                                className="mr-2 text-red-600"
+                              />
+                              <span className="text-sm text-gray-700">{progressStatusLabels[status as string] || status}</span>
+                            </label>
+                          ))}
+                        </div>
+                      </div>
+                    ) : null;
+                  })()}
+                  
+                  {/* Bank Option */}
+                  <div>
+                    <h4 className="font-medium text-gray-800 mb-3">Financing</h4>
+                    <div className="space-y-2">
+                      <label className="flex items-center cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={searchFilters.bankOption === true}
+                          onChange={() => toggleFilter('bankOption', true)}
+                          className="mr-2 text-red-600"
+                        />
+                        <span className="text-sm text-gray-700">Bank Financing Available</span>
+                      </label>
+                    </div>
                   </div>
                 </div>
               </div>
-            </div>
-          )}
-        </div>
-      </div>
+            )}
 
-      {/* Properties Grid */}
-      <div className="container mx-auto px-6 py-12">
-        {filteredListings.length > 0 ? (
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredListings.map((listing) => (
-              <div
-                key={listing.id}
-                className="bg-white rounded-lg shadow-lg overflow-hidden border hover:shadow-xl transition-shadow cursor-pointer"
-                onClick={() => navigate(`/${agent.slug}/listing/${createSlug(listing.title)}`)}
-              >
-                <div className="relative h-64">
-                  {listing.main_image_url ? (
-                    <img
-                      src={listing.main_image_url}
-                      alt={listing.title}
-                      className="w-full h-full object-cover"
-                    />
-                  ) : (
-                    <div className="w-full h-full bg-gray-200 flex items-center justify-center">
-                      <Home className="h-16 w-16 text-gray-400" />
-                    </div>
-                  )}
-                  
-                  {/* Price Badge */}
-                  <div className="absolute top-4 left-4 bg-red-600 text-white px-3 py-1 rounded-sm font-bold">
-                    {formatPrice(listing.price)}
-                  </div>
-                  
-                  {/* Bank Option Badge */}
-                  {listing.bank_option && (
-                    <div className="absolute top-4 right-4 bg-green-600 text-white px-2 py-1 rounded-sm text-xs font-semibold">
-                      Bank Financing
-                    </div>
-                  )}
-                </div>
-                
-                <div className="p-6">
-                  <h3 className="text-xl font-bold text-gray-800 mb-2">{listing.title}</h3>
-                  {listing.location && (
-                    <div className="flex items-center gap-1 text-gray-600 mb-3">
-                      <MapPin className="h-4 w-4" />
-                      <span className="text-sm">{listing.location}</span>
-                    </div>
-                  )}
-                  {listing.description && (
-                    <p className="text-gray-600 text-sm line-clamp-3 mb-4">
-                      {listing.description}
-                    </p>
-                  )}
-                  {listing.progress_status && (
-                    <div className="inline-block px-3 py-1 bg-blue-100 text-blue-800 rounded-full text-xs font-semibold">
-                      {progressStatusLabels[listing.progress_status] || listing.progress_status}
-                    </div>
-                  )}
-                </div>
+            {/* Listings Section */}
+            <div className="bg-white rounded-lg shadow-sm border">
+              <div className="p-6 border-b border-gray-100">
+                <h3 className="text-xl font-bold text-gray-800">Listings</h3>
+                <p className="text-gray-600">Explore available properties</p>
               </div>
-            ))}
-          </div>
-        ) : (
-          <div className="text-center py-16">
-            <Home className="h-24 w-24 text-gray-300 mx-auto mb-4" />
-            <h3 className="text-2xl font-semibold text-gray-700 mb-2">No Properties Found</h3>
-            <p className="text-gray-500">Try adjusting your filters to see more results.</p>
-          </div>
-        )}
-      </div>
-
-      {/* Footer with Agent Contact */}
-      <div className="bg-gray-900 text-white py-12">
-        <div className="container mx-auto px-6 text-center">
-          <div className="max-w-2xl mx-auto">
-            <div className="w-24 h-24 rounded-full overflow-hidden border-4 border-white mx-auto mb-6">
-              {agent.avatar_url ? (
-                <img
-                  src={agent.avatar_url}
-                  alt={`${agent.first_name} ${agent.last_name}`}
-                  className="w-full h-full object-cover"
-                />
-              ) : (
-                <div className="w-full h-full bg-gray-600 flex items-center justify-center text-white font-bold text-xl">
-                  {agent.first_name?.[0]}{agent.last_name?.[0]}
-                </div>
-              )}
-            </div>
-            
-            <h2 className="text-3xl font-bold mb-2">{agent.first_name} {agent.last_name}</h2>
-            {agent.career && <p className="text-xl text-gray-300 mb-6">{agent.career}</p>}
-            
-            <p className="text-gray-300 mb-8 text-lg">
-              Ready to find your dream property? Get in touch today for personalized assistance.
-            </p>
-            
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              {agent.phone_number && (
-                <a
-                  href={`tel:${agent.phone_number}`}
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors font-semibold"
-                >
-                  <Phone className="h-5 w-5" />
-                  {agent.phone_number}
-                </a>
-              )}
-              {agent.whatsapp_link && (
-                <a
-                  href={agent.whatsapp_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors font-semibold"
-                >
-                  WhatsApp
-                </a>
-              )}
-              {agent.telegram_link && (
-                <a
-                  href={agent.telegram_link}
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center justify-center gap-2 px-6 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-semibold"
-                >
-                  Telegram
-                </a>
-              )}
+              
+              <div className="p-6">
+                {filteredListings.length > 0 ? (
+                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {filteredListings.map((listing) => (
+                      <div
+                        key={listing.id}
+                        className="border border-gray-200 rounded-lg overflow-hidden hover:shadow-md transition-shadow cursor-pointer"
+                        onClick={() => navigate(`/${agent.slug}/listing/${createSlug(listing.title)}`)}
+                      >
+                        <div className="relative h-48">
+                          {listing.main_image_url ? (
+                            <img
+                              src={listing.main_image_url}
+                              alt={listing.title}
+                              className="w-full h-full object-cover"
+                            />
+                          ) : (
+                            <div className="w-full h-full bg-gray-100 flex items-center justify-center">
+                              <Home className="h-12 w-12 text-gray-400" />
+                            </div>
+                          )}
+                          
+                          {/* Price Badge */}
+                          <div className="absolute top-3 left-3 bg-red-600 text-white px-2 py-1 rounded text-sm font-bold">
+                            {formatPrice(listing.price)}
+                          </div>
+                          
+                          {/* Bank Option Badge */}
+                          {listing.bank_option && (
+                            <div className="absolute top-3 right-3 bg-green-600 text-white px-2 py-1 rounded text-xs font-semibold">
+                              Bank Financing
+                            </div>
+                          )}
+                        </div>
+                        
+                        <div className="p-4">
+                          <h4 className="font-semibold text-gray-800 mb-2 line-clamp-1">{listing.title}</h4>
+                          {listing.location && (
+                            <div className="flex items-center gap-1 text-gray-600 mb-2">
+                              <MapPin className="h-3 w-3" />
+                              <span className="text-sm truncate">{listing.location}</span>
+                            </div>
+                          )}
+                          {listing.description && (
+                            <p className="text-gray-600 text-sm line-clamp-2 mb-3">
+                              {listing.description}
+                            </p>
+                          )}
+                          {listing.progress_status && (
+                            <div className="inline-block px-2 py-1 bg-blue-100 text-blue-800 rounded text-xs font-semibold">
+                              {progressStatusLabels[listing.progress_status] || listing.progress_status}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                ) : (
+                  <div className="text-center py-12">
+                    <Home className="h-16 w-16 text-gray-300 mx-auto mb-4" />
+                    <h3 className="text-lg font-semibold text-gray-700 mb-2">No Properties Found</h3>
+                    <p className="text-gray-500">Try adjusting your filters to see more results.</p>
+                  </div>
+                )}
+              </div>
             </div>
           </div>
         </div>
