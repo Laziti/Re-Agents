@@ -2,15 +2,9 @@ import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Helmet } from 'react-helmet';
-import AgentProfileHeader from '@/components/public/AgentProfileHeader';
 import ListingCard from '@/components/public/ListingCard';
-import SearchBar from '@/components/public/SearchBar';
-import { Loader2, Building, ChevronRight, Home, ArrowLeft, Phone } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { motion, AnimatePresence } from 'framer-motion';
+import { Loader2, Phone } from 'lucide-react';
 import { createSlug } from '@/lib/formatters';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 
 interface AgentProfile {
   id: string;
@@ -162,7 +156,7 @@ const AgentPublicProfile = () => {
           .from('listings')
           .select('id, title, price, location, city, main_image_url, description, created_at, progress_status, bank_option')
           .eq('user_id', agent.id)
-          .neq('status', 'hidden')
+          .in('status', ['active', 'published'])
           .order('created_at', { ascending: false });
 
         if (listingsError) {
@@ -263,172 +257,266 @@ const AgentPublicProfile = () => {
         <meta name="twitter:description" content={pageDescription} />
       </Helmet>
       
-      {/* Static Cover */}
-      <div className="w-full h-48 md:h-64 relative overflow-hidden group">
+      {/* Cover Section */}
+      <div className="w-full h-64 md:h-80 relative overflow-hidden">
         <img 
           src="/Cover-page.png"
           alt="Agent Profile Cover" 
-          className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105"
+          className="w-full h-full object-cover"
         />
-        <div className="absolute inset-0 bg-black/30 flex items-center justify-center transition-opacity duration-300 group-hover:bg-black/40">
-          {/* Optional: Add a subtle overlay or text here if desired */}
+        <div className="absolute inset-0 bg-gradient-to-t from-black/50 via-transparent to-transparent"></div>
+        
+        {/* Cover Title */}
+        <div className="absolute inset-0 flex items-center justify-center">
+          <h1 className="text-4xl md:text-6xl font-bold text-white drop-shadow-lg">
+            Cover
+          </h1>
         </div>
       </div>
 
-      <div className="container mx-auto px-4 py-8 relative z-10 -mt-16 md:-mt-24">
+      <div className="container mx-auto px-4 py-8 relative z-10 -mt-20 md:-mt-32">
         <div className="max-w-7xl mx-auto">
-          {/* Agent Profile Header */}
-          <div className="mb-4 relative z-20">
-            <AgentProfileHeader 
-              firstName={agent.first_name}
-              lastName={agent.last_name}
-              career={agent.career}
-              phoneNumber={agent.phone_number}
-              avatarUrl={agent.avatar_url}
-              whatsappLink={agent.whatsapp_link}
-              telegramLink={agent.telegram_link}
-              listings={listings}
-            />
-          </div>
-
-          {/* Responsive, functional category bar */}
-          <div className="mb-8 space-y-3">
-            {/* Places */}
-            {availableCities.length > 0 && (
-              <div>
-                <div className="font-semibold mb-1 text-[var(--portal-text)]">Places</div>
-                <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gold-200/40">
-                  {availableCities.map(city => (
-                    <button
-                      key={city}
-                      className={`whitespace-nowrap px-4 py-2 rounded-full border font-medium shadow-sm transition cursor-pointer ${searchFilters.city === city ? 'bg-red-500 text-white border-red-500' : 'bg-[var(--portal-bg-hover)] border-[var(--portal-border)] text-[var(--portal-text)] hover:bg-red-100'}`}
-                      onClick={() => toggleFilter('city', city)}
+          {/* Profile Section */}
+          <div className="flex flex-col md:flex-row gap-8 mb-12">
+            {/* Profile Avatar and Info */}
+            <div className="bg-[#F5E6A3] rounded-2xl p-8 md:w-80 flex-shrink-0">
+              <div className="text-center">
+                {/* Profile Avatar */}
+                <div className="w-32 h-32 mx-auto mb-6 relative">
+                  <div className="w-full h-full rounded-full bg-gray-300 overflow-hidden border-4 border-white shadow-lg">
+                    {agent.avatar_url ? (
+                      <img
+                        src={agent.avatar_url}
+                        alt={`${agent.first_name} ${agent.last_name}`}
+                        className="w-full h-full object-cover"
+                      />
+                    ) : (
+                      <div className="w-full h-full flex items-center justify-center bg-gray-400 text-white text-4xl font-bold">
+                        {agent.first_name?.[0]}{agent.last_name?.[0]}
+                      </div>
+                    )}
+                  </div>
+                </div>
+                
+                {/* Profile Text */}
+                <div className="text-center text-black font-semibold text-lg mb-4">
+                  profile
+                </div>
+                
+                {/* Agent Name and Career */}
+                <h2 className="text-2xl font-bold text-black mb-2">
+                  {agent.first_name} {agent.last_name}
+                </h2>
+                {agent.career && (
+                  <p className="text-black/80 mb-4">{agent.career}</p>
+                )}
+                
+                {/* Contact Buttons */}
+                <div className="space-y-3">
+                  {agent.phone_number && (
+                    <a
+                      href={`tel:${agent.phone_number}`}
+                      className="w-full inline-flex items-center justify-center gap-3 px-4 py-2.5 bg-black text-white rounded-lg hover:bg-gray-800 transition-colors font-semibold"
                     >
-                      {city}
-                    </button>
-                  ))}
+                      <Phone className="h-5 w-5" />
+                      Call
+                    </a>
+                  )}
+                  {agent.whatsapp_link && (
+                    <a
+                      href={agent.whatsapp_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-3 px-4 py-2.5 bg-green-500 text-white rounded-lg hover:bg-green-600 transition-colors font-semibold"
+                    >
+                      WhatsApp
+                    </a>
+                  )}
+                  {agent.telegram_link && (
+                    <a
+                      href={agent.telegram_link}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="w-full inline-flex items-center justify-center gap-3 px-4 py-2.5 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors font-semibold"
+                    >
+                      Telegram
+                    </a>
+                  )}
                 </div>
               </div>
-            )}
-            {/* Progress Status */}
-            {listings.length > 0 && (() => {
-              const progressStatuses = Array.from(new Set(listings.map(l => l.progress_status).filter(Boolean)));
-              return progressStatuses.length > 0 ? (
-                <div>
-                  <div className="font-semibold mb-1 text-[var(--portal-text)]">Progress</div>
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gold-200/40">
-                    {progressStatuses.map(status => (
-                      <button
-                        key={status as string}
-                        className={`whitespace-nowrap px-4 py-2 rounded-full border font-medium shadow-sm transition cursor-pointer ${searchFilters.progressStatus === status ? 'bg-red-500 text-white border-red-500' : 'bg-[var(--portal-bg-hover)] border-[var(--portal-border)] text-[var(--portal-text)] hover:bg-red-100'}`}
-                        onClick={() => toggleFilter('progressStatus', status)}
-                      >
-                        {progressStatusLabels[status as string] || status}
-                      </button>
-                    ))}
-                  </div>
+            </div>
+
+            {/* Categories Section */}
+            <div className="flex-1">
+              {/* Profile Label */}
+              <div className="bg-[#F5E6A3] rounded-lg px-6 py-3 mb-6 inline-block">
+                <span className="text-black font-semibold text-lg">profile</span>
+              </div>
+              
+              {/* Categories Grid */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
+                {/* Categories Label */}
+                <div className="bg-[#F5E6A3] rounded-lg p-6 flex items-center justify-center">
+                  <span className="text-black font-semibold text-lg">Categories</span>
                 </div>
-              ) : null;
-            })()}
-            {/* Bank Option */}
-            {listings.length > 0 && (() => {
-              const hasBankOption = listings.some(l => l.bank_option);
-              const hasNoBankOption = listings.some(l => l.bank_option === false);
-              return (hasBankOption || hasNoBankOption) ? (
-                <div>
-                  <div className="font-semibold mb-1 text-[var(--portal-text)]">Bank Option</div>
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gold-200/40">
-                    {hasBankOption && (
-                      <button
-                        className={`whitespace-nowrap px-4 py-2 rounded-full border font-medium shadow-sm transition cursor-pointer ${searchFilters.bankOption === true ? 'bg-red-500 text-white border-red-500' : 'bg-[var(--portal-bg-hover)] border-[var(--portal-border)] text-[var(--portal-text)] hover:bg-red-100'}`}
-                        onClick={() => toggleFilter('bankOption', true)}
-                      >
-                        Available
-                      </button>
-                    )}
-                    {hasNoBankOption && (
-                      <button
-                        className={`whitespace-nowrap px-4 py-2 rounded-full border font-medium shadow-sm transition cursor-pointer ${searchFilters.bankOption === false ? 'bg-red-500 text-white border-red-500' : 'bg-[var(--portal-bg-hover)] border-[var(--portal-border)] text-[var(--portal-text)] hover:bg-red-100'}`}
-                        onClick={() => toggleFilter('bankOption', false)}
-                      >
-                        Not Available
-                      </button>
-                    )}
+                
+                {/* Category Items */}
+                <div className="bg-[#F5E6A3] rounded-lg p-6"></div>
+                <div className="bg-[#F5E6A3] rounded-lg p-6"></div>
+                <div className="bg-[#F5E6A3] rounded-lg p-6"></div>
+                <div className="bg-[#F5E6A3] rounded-lg p-6"></div>
+              </div>
+
+              {/* Filter Categories */}
+              <div className="space-y-6">
+                {/* Places */}
+                {availableCities.length > 0 && (
+                  <div>
+                    <div className="font-semibold mb-3 text-[var(--portal-text)] text-lg">Places</div>
+                    <div className="flex gap-3 flex-wrap">
+                      {availableCities.map(city => (
+                        <button
+                          key={city}
+                          className={`px-6 py-3 rounded-lg border font-medium shadow-sm transition cursor-pointer ${
+                            searchFilters.city === city 
+                              ? 'bg-red-500 text-white border-red-500' 
+                              : 'bg-[#F5E6A3] border-[#F5E6A3] text-black hover:bg-[#F0DB91]'
+                          }`}
+                          onClick={() => toggleFilter('city', city)}
+                        >
+                          {city}
+                        </button>
+                      ))}
+                    </div>
                   </div>
-                </div>
-              ) : null;
-            })()}
-            {/* Price Ranges */}
-            {listings.length > 0 && (() => {
-              const priceRangeIds = new Set<string>();
-              listings.forEach(l => {
-                const range = priceRanges.find(r => l.price >= r.min && l.price < r.max);
-                if (range) priceRangeIds.add(range.id);
-              });
-              return priceRangeIds.size > 0 ? (
-                <div>
-                  <div className="font-semibold mb-1 text-[var(--portal-text)]">Prices</div>
-                  <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-gold-200/40">
-                    {priceRanges.filter(r => priceRangeIds.has(r.id)).map(range => (
-                      <button
-                        key={range.id}
-                        className={`whitespace-nowrap px-4 py-2 rounded-full border font-medium shadow-sm transition cursor-pointer ${(searchFilters.minPrice === range.min && searchFilters.maxPrice === range.max) ? 'bg-red-500 text-white border-red-500' : 'bg-[var(--portal-bg-hover)] border-[var(--portal-border)] text-[var(--portal-text)] hover:bg-red-100'}`}
-                        onClick={() => toggleFilter('priceRange', { min: range.min, max: range.max })}
-                      >
-                        {range.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              ) : null;
-            })()}
+                )}
+                
+                {/* Progress Status */}
+                {listings.length > 0 && (() => {
+                  const progressStatuses = Array.from(new Set(listings.map(l => l.progress_status).filter(Boolean)));
+                  return progressStatuses.length > 0 ? (
+                    <div>
+                      <div className="font-semibold mb-3 text-[var(--portal-text)] text-lg">Progress</div>
+                      <div className="flex gap-3 flex-wrap">
+                        {progressStatuses.map(status => (
+                          <button
+                            key={status as string}
+                            className={`px-6 py-3 rounded-lg border font-medium shadow-sm transition cursor-pointer ${
+                              searchFilters.progressStatus === status 
+                                ? 'bg-red-500 text-white border-red-500' 
+                                : 'bg-[#F5E6A3] border-[#F5E6A3] text-black hover:bg-[#F0DB91]'
+                            }`}
+                            onClick={() => toggleFilter('progressStatus', status)}
+                          >
+                            {progressStatusLabels[status as string] || status}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+                
+                {/* Bank Option */}
+                {listings.length > 0 && (() => {
+                  const hasBankOption = listings.some(l => l.bank_option);
+                  const hasNoBankOption = listings.some(l => l.bank_option === false);
+                  return (hasBankOption || hasNoBankOption) ? (
+                    <div>
+                      <div className="font-semibold mb-3 text-[var(--portal-text)] text-lg">Bank Option</div>
+                      <div className="flex gap-3 flex-wrap">
+                        {hasBankOption && (
+                          <button
+                            className={`px-6 py-3 rounded-lg border font-medium shadow-sm transition cursor-pointer ${
+                              searchFilters.bankOption === true 
+                                ? 'bg-red-500 text-white border-red-500' 
+                                : 'bg-[#F5E6A3] border-[#F5E6A3] text-black hover:bg-[#F0DB91]'
+                            }`}
+                            onClick={() => toggleFilter('bankOption', true)}
+                          >
+                            Available
+                          </button>
+                        )}
+                        {hasNoBankOption && (
+                          <button
+                            className={`px-6 py-3 rounded-lg border font-medium shadow-sm transition cursor-pointer ${
+                              searchFilters.bankOption === false 
+                                ? 'bg-red-500 text-white border-red-500' 
+                                : 'bg-[#F5E6A3] border-[#F5E6A3] text-black hover:bg-[#F0DB91]'
+                            }`}
+                            onClick={() => toggleFilter('bankOption', false)}
+                          >
+                            Not Available
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+                
+                {/* Price Ranges */}
+                {listings.length > 0 && (() => {
+                  const priceRangeIds = new Set<string>();
+                  listings.forEach(l => {
+                    const range = priceRanges.find(r => l.price >= r.min && l.price < r.max);
+                    if (range) priceRangeIds.add(range.id);
+                  });
+                  return priceRangeIds.size > 0 ? (
+                    <div>
+                      <div className="font-semibold mb-3 text-[var(--portal-text)] text-lg">Prices</div>
+                      <div className="flex gap-3 flex-wrap">
+                        {priceRanges.filter(r => priceRangeIds.has(r.id)).map(range => (
+                          <button
+                            key={range.id}
+                            className={`px-6 py-3 rounded-lg border font-medium shadow-sm transition cursor-pointer ${
+                              (searchFilters.minPrice === range.min && searchFilters.maxPrice === range.max) 
+                                ? 'bg-red-500 text-white border-red-500' 
+                                : 'bg-[#F5E6A3] border-[#F5E6A3] text-black hover:bg-[#F0DB91]'
+                            }`}
+                            onClick={() => toggleFilter('priceRange', { min: range.min, max: range.max })}
+                          >
+                            {range.label}
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  ) : null;
+                })()}
+              </div>
+            </div>
+          </div>
+        </div>
+        
+        {/* Listings Section */}
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
+          {/* Listings Title Card */}
+          <div className="bg-[#F5E6A3] rounded-lg p-8 flex items-center justify-center">
+            <span className="text-black font-semibold text-2xl">Listings</span>
           </div>
           
-          {/* Search Section */}
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.4 }}
-            className="mb-12"
-          >
-            <Card className="bg-[var(--portal-card-bg)] border-[var(--portal-border)]">
-              <CardHeader className="pb-4">
-                <CardTitle className="text-2xl font-bold text-gold-500">Search Properties</CardTitle>
-                <p className="text-[var(--portal-text-secondary)]">
-                  Find the perfect property from {agent.first_name}'s listings
-                </p>
-              </CardHeader>
-              <CardContent>
-                <SearchBar
-                  onSearch={() => {}}
-                  availableCities={availableCities}
-                  placeholder={`Search ${agent.first_name}'s properties...`}
-                />
-              </CardContent>
-            </Card>
-          </motion.div>
-        </div>
-        {/* Show only filtered listings */}
-        <div className="mt-12">
-          <h2 className="text-2xl font-bold mb-6 text-gold-500">Listings</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
-            {filteredListings.length > 0 ? (
-              filteredListings.map((listing, index) => (
-                <ListingCard
-                  key={listing.id}
-                  id={listing.id}
-                  title={listing.title}
-                  location={listing.location}
-                  mainImageUrl={listing.main_image_url}
-                  agentSlug={agent.slug}
-                  description={listing.description}
-                  createdAt={listing.created_at}
-                  onViewDetails={() => navigate(`/${agent.slug}/listing/${createSlug(listing.title)}`)}
-                />
-              ))
-            ) : (
-              <div className="col-span-full text-center text-[var(--portal-text-secondary)]">No listings found.</div>
-            )}
+          {/* Listing Cards */}
+          <div className="lg:col-span-2">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+              {filteredListings.length > 0 ? (
+                filteredListings.map((listing, index) => (
+                  <div key={listing.id} className="bg-[#F5E6A3] rounded-lg p-6">
+                    <ListingCard
+                      id={listing.id}
+                      title={listing.title}
+                      location={listing.location}
+                      mainImageUrl={listing.main_image_url}
+                      agentSlug={agent.slug}
+                      description={listing.description}
+                      createdAt={listing.created_at}
+                      onViewDetails={() => navigate(`/${agent.slug}/listing/${createSlug(listing.title)}`)}
+                    />
+                  </div>
+                ))
+              ) : (
+                <div className="md:col-span-2 bg-[#F5E6A3] rounded-lg p-8 text-center text-black">
+                  No listings found.
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </div>

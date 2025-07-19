@@ -29,10 +29,11 @@ const ListingDetail = () => {
         console.log(`Fetching listing details for agentSlug: ${agentSlug}, listingSlug: ${listingSlug}`);
 
         // Get listings for this agent, including user_id
+        // Remove any authentication dependency and make this truly public
         const { data: listings, error: listingsError } = await supabase
           .from('listings')
           .select(`*`)
-          .neq('status', 'hidden'); // Only fetch active listings
+          .in('status', ['active', 'published']); // Allow both active and published listings
 
         if (listingsError) {
           console.error('Supabase error fetching listings:', listingsError);
@@ -43,14 +44,13 @@ const ListingDetail = () => {
           throw new Error('No listings found');
         }
         console.log(`Successfully fetched ${listings.length} total listings.`);
-        // console.log('Fetched listings data (all):', listings); // Too verbose to log all listings
 
         // Find the agent by slug first
         const { data: agentData, error: agentError } = await supabase
           .from('profiles')
-          .select('id, first_name, last_name, career, phone_number, avatar_url, slug, status')
+          .select('id, first_name, last_name, career, phone_number, avatar_url, slug, status, whatsapp_link, telegram_link')
           .eq('slug', agentSlug)
-          .eq('status', 'active')
+          .in('status', ['active', 'approved']) // Allow both active and approved agents
           .maybeSingle();
         
         if (agentError) {
@@ -89,13 +89,6 @@ const ListingDetail = () => {
         setAgent(agentData);
         console.log('Setting listing:', matchingListing);
         console.log('Setting agent:', agentData);
-
-        // Handle agent slug verification and redirects (should be handled by initial agent fetch now)
-        // if (agentData.slug && agentData.slug !== agentSlug) {
-        //   console.warn(`Agent slug mismatch. Redirecting from ${agentSlug} to ${agentData.slug}`);
-        //   navigate(`/${agentData.slug}/listing/${createListingSlug(matchingListing.title)}`, { replace: true });
-        //   return;
-        // }
 
       } catch (err) {
         const errorMessage = err instanceof Error ? err.message : 'An unknown error occurred';
