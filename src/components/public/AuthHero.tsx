@@ -3,12 +3,12 @@ import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/contexts/AuthContext';
 import { motion } from 'framer-motion';
-import { ArrowRight, CheckCircle, Link as LinkIcon, Home, DollarSign } from 'lucide-react';
+import { ArrowRight, Building2, CheckCircle, Lock, Mail, User, Phone, MapPin } from 'lucide-react';
 import { createSlug } from '@/lib/formatters';
 
 const REAL_ESTATE_COMPANIES = [
   "Noah Real Estate",
-  "Gift Real Estate",
+  "Gift Real Estate", 
   "Flintstone Homes",
   "Afro-Tsion Real Estate",
   "Ayat Share Company",
@@ -224,229 +224,362 @@ const AuthHero: React.FC = () => {
     }
   };
 
-  const inputBaseClasses = "w-full p-3 bg-[var(--portal-input-bg)] text-[var(--portal-input-text)] rounded-md border border-[var(--portal-input-border)] focus:ring-2 focus:ring-[var(--portal-accent)] focus:border-transparent placeholder-[var(--portal-text-secondary)]";
-  const buttonBaseClasses = "w-full bg-[var(--portal-button-bg)] hover:bg-[var(--portal-button-hover)] text-[var(--portal-button-text)] font-semibold p-3 rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[var(--portal-accent)] focus:ring-opacity-50 disabled:opacity-50 disabled:cursor-not-allowed hover:-translate-y-0.5 transform";
-
   return (
-    <div className="relative min-h-screen flex items-center justify-center py-8 overflow-hidden">
-      {/* Hero Background Image - no effects */}
-      <img
-        src="/HeroBG.jpg"
-        alt="Hero Background"
-        className="absolute inset-0 w-full h-full object-cover z-0"
-        style={{ pointerEvents: 'none', userSelect: 'none' }}
-      />
-      {/* Main Content */}
-      <div className="container mx-auto px-6 relative z-10 flex flex-col lg:flex-row items-start">
-        {/* Left side - Hero Text */}
-        <div className="w-full lg:w-1/2 lg:pr-12 mt-0 lg:mt-0">
-          <div className="flex justify-center lg:justify-start mb-0">
-            <img src="/LogoIcon.svg" alt="Company Logo" className="h-40 md:h-48 lg:h-48 transform hover:scale-105 transition-transform duration-300" />
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-white to-purple-50 flex items-center justify-center py-12 px-4">
+      <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+        
+        {/* Left side - Hero Content */}
+        <motion.div
+          initial={{ opacity: 0, x: -30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8 }}
+          className="space-y-8"
+        >
+          <div className="flex items-center space-x-3 mb-8">
+            <div className="w-12 h-12 bg-gradient-to-br from-blue-600 to-purple-600 rounded-2xl flex items-center justify-center">
+              <Building2 className="w-7 h-7 text-white" />
+            </div>
+            <span className="text-2xl font-bold text-gray-900">RealEstate Portal</span>
           </div>
-          
-          <motion.h1 
-            className="-mt-6 text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-center lg:text-left text-black"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8 }}
-          >
-            Your Real Estate.
-            <span className="relative text-transparent bg-clip-text bg-gradient-to-r from-[var(--portal-accent)] to-[#ff5a5a]"> Your Brand.</span>
-          </motion.h1>
-        </div>
+
+          <div>
+            <h1 className="text-4xl md:text-6xl font-black leading-tight mb-6">
+              Your Real Estate.
+              <span className="gradient-text block">Your Brand.</span>
+            </h1>
+            <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
+              Join hundreds of successful real estate professionals who trust our platform to showcase their properties and grow their business.
+            </p>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-green-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-green-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-gray-900">Professional Listings</div>
+                <div className="text-sm text-gray-600">Stunning property showcases</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-blue-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-blue-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-gray-900">Client Management</div>
+                <div className="text-sm text-gray-600">Connect with prospects</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-purple-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-purple-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-gray-900">Analytics Dashboard</div>
+                <div className="text-sm text-gray-600">Track your performance</div>
+              </div>
+            </div>
+            <div className="flex items-center space-x-3">
+              <div className="w-10 h-10 bg-yellow-100 rounded-xl flex items-center justify-center">
+                <CheckCircle className="w-6 h-6 text-yellow-600" />
+              </div>
+              <div>
+                <div className="font-semibold text-gray-900">Secure Platform</div>
+                <div className="text-sm text-gray-600">Enterprise-grade security</div>
+              </div>
+            </div>
+          </div>
+        </motion.div>
+
         {/* Right side - Auth Form */}
-        <div className="w-full lg:w-1/2 lg:pl-12">
-          <motion.div 
-            className="bg-[var(--portal-card-bg)] p-8 rounded-2xl shadow-2xl border-2 border-[var(--portal-accent)] relative overflow-hidden h-[480px] max-w-md mx-auto"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.8, delay: 0.3 }}
-          >
-            <div className="flex mb-6 border-b border-[var(--portal-border)]">
-          <button
-            className={`flex-1 py-3 px-4 text-center font-semibold transition-colors duration-300 ${
-              activeTab === 'signIn'
-                ? 'text-[var(--portal-accent)] border-b-2 border-[var(--portal-accent)]'
-                : 'text-[var(--portal-text-secondary)] hover:text-[var(--portal-accent)] focus:outline-none'
-            }`}
-            onClick={() => { setActiveTab('signIn'); setErrorMessage(null); }}
-          >
-            Sign In
-          </button>
-          <button
-            className={`flex-1 py-3 px-4 text-center font-semibold transition-colors duration-300 ${
-              activeTab === 'signUp'
-                ? 'text-[var(--portal-accent)] border-b-2 border-[var(--portal-accent)]'
-                : 'text-[var(--portal-text-secondary)] hover:text-[var(--portal-accent)] focus:outline-none'
-            }`}
-            onClick={() => { setActiveTab('signUp'); setErrorMessage(null); }}
-          >
-            Sign Up
-          </button>
-        </div>
-
-        {errorMessage && (
-              <div className="mb-6 p-3 bg-red-700/30 border border-red-600 text-red-400 rounded-md text-center">
-            {errorMessage}
-          </div>
-        )}
-
-          {/* Sign In Form */}
-            <div className={`transition-opacity duration-300 h-[350px] ${activeTab === 'signIn' ? 'block' : 'hidden'}`}>
-              <form onSubmit={handleSignIn} className="space-y-4">
-                <div className="space-y-2">
-                  <label htmlFor="email" className="block text-sm font-medium text-[var(--portal-label-text)]">Email</label>
-                <input
-                    id="email"
-                  type="email"
-                  value={signInEmail}
-                  onChange={(e) => setSignInEmail(e.target.value)}
-                    placeholder="your@email.com"
-                  className={inputBaseClasses}
-                  disabled={isLoading}
-                />
-              </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="password" className="block text-sm font-medium text-[var(--portal-label-text)]">Password</label>
-                <input
-                    id="password"
-                  type="password"
-                  value={signInPassword}
-                  onChange={(e) => setSignInPassword(e.target.value)}
-                    placeholder="••••••••"
-                  className={inputBaseClasses}
-                  disabled={isLoading}
-                />
-              </div>
-                
+        <motion.div
+          initial={{ opacity: 0, x: 30 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.8, delay: 0.2 }}
+          className="w-full max-w-md mx-auto"
+        >
+          <div className="glass-card p-8 rounded-3xl shadow-2xl border border-white/20">
+            
+            {/* Tab Switcher */}
+            <div className="flex mb-8 bg-gray-100 rounded-2xl p-1">
               <button
-                type="submit"
-                className={buttonBaseClasses}
-                disabled={isLoading}
+                className={`flex-1 py-3 px-4 text-center font-semibold rounded-xl transition-all duration-300 ${
+                  activeTab === 'signIn'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                onClick={() => { setActiveTab('signIn'); setErrorMessage(null); }}
               >
-                {isLoading ? 'Signing In...' : 'Sign In'}
+                Sign In
               </button>
-            </form>
-          </div>
+              <button
+                className={`flex-1 py-3 px-4 text-center font-semibold rounded-xl transition-all duration-300 ${
+                  activeTab === 'signUp'
+                    ? 'bg-white text-gray-900 shadow-sm'
+                    : 'text-gray-600 hover:text-gray-900'
+                }`}
+                onClick={() => { setActiveTab('signUp'); setErrorMessage(null); }}
+              >
+                Sign Up
+              </button>
+            </div>
 
-          {/* Sign Up Form */}
-            <div className={`transition-opacity duration-300 h-[350px] overflow-y-auto ${activeTab === 'signUp' ? 'block' : 'hidden'}`}>
-              {signUpSuccess && (
-                <div className="mb-4 p-3 bg-green-700/30 border border-green-600 text-green-400 rounded-md text-center">
-                  Sign up successful! Redirecting to your portal...
-                </div>
-              )}
-              <form onSubmit={handleSignUp} className="space-y-4">
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+            {/* Error Message */}
+            {errorMessage && (
+              <motion.div
+                initial={{ opacity: 0, y: -10 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="mb-6 p-4 bg-red-50 border border-red-200 text-red-700 rounded-xl text-sm"
+              >
+                {errorMessage}
+              </motion.div>
+            )}
+
+            {/* Sign In Form */}
+            {activeTab === 'signIn' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+              >
+                <form onSubmit={handleSignIn} className="space-y-6">
                   <div className="space-y-2">
-                    <label htmlFor="firstName" className="block text-sm font-medium text-[var(--portal-label-text)]">First Name</label>
-                  <input
-                      id="firstName"
-                    type="text"
-                    value={signUpFirstName}
-                    onChange={(e) => setSignUpFirstName(e.target.value)}
-                      
-                    className={inputBaseClasses}
-                    disabled={isLoading}
-                  />
-                </div>
+                    <label htmlFor="email" className="block text-sm font-semibold text-gray-700">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        id="email"
+                        type="email"
+                        value={signInEmail}
+                        onChange={(e) => setSignInEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        className="modern-input pl-12 w-full"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
                   
                   <div className="space-y-2">
-                    <label htmlFor="lastName" className="block text-sm font-medium text-[var(--portal-label-text)]">Last Name</label>
-                  <input
-                      id="lastName"
-                    type="text"
-                    value={signUpLastName}
-                    onChange={(e) => setSignUpLastName(e.target.value)}
-                      
-                    className={inputBaseClasses}
+                    <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-4 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400" />
+                      <input
+                        id="password"
+                        type="password"
+                        value={signInPassword}
+                        onChange={(e) => setSignInPassword(e.target.value)}
+                        placeholder="Enter your password"
+                        className="modern-input pl-12 w-full"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  
+                  <button
+                    type="submit"
+                    className="modern-btn w-full group"
                     disabled={isLoading}
-                  />
-                </div>
-              </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="signUpEmail" className="block text-sm font-medium text-[var(--portal-label-text)]">Email</label>
-                <input
-                    id="signUpEmail"
-                  type="email"
-                  value={signUpEmail}
-                  onChange={(e) => setSignUpEmail(e.target.value)}
-                    
-                  className={inputBaseClasses}
-                  disabled={isLoading}
-                />
-              </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="signUpPassword" className="block text-sm font-medium text-[var(--portal-label-text)]">Password</label>
-                <input
-                    id="signUpPassword"
-                  type="password"
-                  value={signUpPassword}
-                  onChange={(e) => setSignUpPassword(e.target.value)}
-                    
-                  className={inputBaseClasses}
-                  disabled={isLoading}
-                />
-              </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="phoneNumber" className="block text-sm font-medium text-[var(--portal-label-text)]">Phone Number</label>
-                <input
-                    id="phoneNumber"
-                  type="tel"
-                  value={signUpPhoneNumber}
-                  onChange={(e) => setSignUpPhoneNumber(e.target.value)}
-                    
-                  className={inputBaseClasses}
-                  disabled={isLoading}
-                />
-              </div>
-                
-                <div className="space-y-2">
-                  <label htmlFor="company" className="block text-sm font-medium text-[var(--portal-label-text)]">Company</label>
-                <select
-                    id="company"
-                  value={signUpCompany}
-                  onChange={(e) => setSignUpCompany(e.target.value as typeof REAL_ESTATE_COMPANIES[number] | '')}
-                    className={inputBaseClasses}
-                  disabled={isLoading}
-                >
-                    <option value="">Select a company</option>
-                  {REAL_ESTATE_COMPANIES.map((company) => (
-                      <option key={company} value={company}>{company}</option>
-                  ))}
-                </select>
-              </div>
-                
-              {showOtherCompanyInput && (
-                  <div className="space-y-2">
-                    <label htmlFor="otherCompany" className="block text-sm font-medium text-[var(--portal-label-text)]">Specify Company</label>
-                  <input
-                      id="otherCompany"
-                    type="text"
-                    value={signUpOtherCompany}
-                    onChange={(e) => setSignUpOtherCompany(e.target.value)}
-                      placeholder="Your company name"
-                    className={inputBaseClasses}
-                    disabled={isLoading}
-                  />
-                </div>
-              )}
-                
-              <button
-                type="submit"
-                className={buttonBaseClasses}
-                disabled={isLoading || signUpSuccess}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Signing In...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center space-x-2">
+                        <span>Sign In</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    )}
+                  </button>
+                </form>
+              </motion.div>
+            )}
+
+            {/* Sign Up Form */}
+            {activeTab === 'signUp' && (
+              <motion.div
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.3 }}
+                className="max-h-96 overflow-y-auto"
               >
-                {isLoading ? 'Signing Up...' : 'Sign Up'}
-              </button>
-            </form>
+                {signUpSuccess && (
+                  <motion.div
+                    initial={{ opacity: 0, y: -10 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    className="mb-6 p-4 bg-green-50 border border-green-200 text-green-700 rounded-xl text-sm"
+                  >
+                    Sign up successful! Redirecting to your portal...
+                  </motion.div>
+                )}
+                
+                <form onSubmit={handleSignUp} className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <label htmlFor="firstName" className="block text-sm font-semibold text-gray-700">
+                        First Name
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          id="firstName"
+                          type="text"
+                          value={signUpFirstName}
+                          onChange={(e) => setSignUpFirstName(e.target.value)}
+                          placeholder="First name"
+                          className="modern-input pl-10 w-full text-sm"
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-2">
+                      <label htmlFor="lastName" className="block text-sm font-semibold text-gray-700">
+                        Last Name
+                      </label>
+                      <div className="relative">
+                        <User className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          id="lastName"
+                          type="text"
+                          value={signUpLastName}
+                          onChange={(e) => setSignUpLastName(e.target.value)}
+                          placeholder="Last name"
+                          className="modern-input pl-10 w-full text-sm"
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="signUpEmail" className="block text-sm font-semibold text-gray-700">
+                      Email Address
+                    </label>
+                    <div className="relative">
+                      <Mail className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        id="signUpEmail"
+                        type="email"
+                        value={signUpEmail}
+                        onChange={(e) => setSignUpEmail(e.target.value)}
+                        placeholder="Enter your email"
+                        className="modern-input pl-10 w-full text-sm"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="signUpPassword" className="block text-sm font-semibold text-gray-700">
+                      Password
+                    </label>
+                    <div className="relative">
+                      <Lock className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        id="signUpPassword"
+                        type="password"
+                        value={signUpPassword}
+                        onChange={(e) => setSignUpPassword(e.target.value)}
+                        placeholder="Create a password"
+                        className="modern-input pl-10 w-full text-sm"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="phoneNumber" className="block text-sm font-semibold text-gray-700">
+                      Phone Number
+                    </label>
+                    <div className="relative">
+                      <Phone className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <input
+                        id="phoneNumber"
+                        type="tel"
+                        value={signUpPhoneNumber}
+                        onChange={(e) => setSignUpPhoneNumber(e.target.value)}
+                        placeholder="Your phone number"
+                        className="modern-input pl-10 w-full text-sm"
+                        disabled={isLoading}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label htmlFor="company" className="block text-sm font-semibold text-gray-700">
+                      Real Estate Company
+                    </label>
+                    <div className="relative">
+                      <MapPin className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                      <select
+                        id="company"
+                        value={signUpCompany}
+                        onChange={(e) => setSignUpCompany(e.target.value as typeof REAL_ESTATE_COMPANIES[number] | '')}
+                        className="modern-input pl-10 w-full text-sm"
+                        disabled={isLoading}
+                      >
+                        <option value="">Select your company</option>
+                        {REAL_ESTATE_COMPANIES.map((company) => (
+                          <option key={company} value={company}>{company}</option>
+                        ))}
+                      </select>
+                    </div>
+                  </div>
+                  
+                  {showOtherCompanyInput && (
+                    <motion.div
+                      initial={{ opacity: 0, height: 0 }}
+                      animate={{ opacity: 1, height: 'auto' }}
+                      transition={{ duration: 0.3 }}
+                      className="space-y-2"
+                    >
+                      <label htmlFor="otherCompany" className="block text-sm font-semibold text-gray-700">
+                        Company Name
+                      </label>
+                      <div className="relative">
+                        <Building2 className="absolute left-3 top-1/2 transform -translate-y-1/2 w-4 h-4 text-gray-400" />
+                        <input
+                          id="otherCompany"
+                          type="text"
+                          value={signUpOtherCompany}
+                          onChange={(e) => setSignUpOtherCompany(e.target.value)}
+                          placeholder="Enter your company name"
+                          className="modern-input pl-10 w-full text-sm"
+                          disabled={isLoading}
+                        />
+                      </div>
+                    </motion.div>
+                  )}
+                  
+                  <button
+                    type="submit"
+                    className="modern-btn w-full group mt-6"
+                    disabled={isLoading || signUpSuccess}
+                  >
+                    {isLoading ? (
+                      <div className="flex items-center justify-center space-x-2">
+                        <div className="animate-spin rounded-full h-4 w-4 border-b-2 border-white"></div>
+                        <span>Creating Account...</span>
+                      </div>
+                    ) : (
+                      <div className="flex items-center justify-center space-x-2">
+                        <span>Create Account</span>
+                        <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                      </div>
+                    )}
+                  </button>
+                </form>
+              </motion.div>
+            )}
           </div>
-          </motion.div>
-        </div>
+        </motion.div>
       </div>
     </div>
   );
